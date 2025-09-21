@@ -366,6 +366,11 @@
       color: var(--text-muted);
     }
 
+    .watermark{
+      color: var(--primary);
+      text-decoration: none;
+    }
+
     /* Mobile Responsive */
     @media (max-width: 768px) {
       body {
