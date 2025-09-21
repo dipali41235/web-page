@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Webpage Extractor — API Ninjas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #8B4513;
+      --primary-light: #A0522D;
+      --secondary: #D2B48C;
+      --accent: #DEB887;
+      --background: #FFF8DC;
+      --surface: #FFFFFF;
+      --surface-variant: #F5F5DC;
+      --text-primary: #3E2723;
+      --text-secondary: #5D4037;
+      --text-muted: #8D6E63;
+      --border: #E8E0D6;
+      --shadow: 0 4px 20px rgba(139, 69, 19, 0.1);
+      --shadow-hover: 0 8px 30px rgba(139, 69, 19, 0.15);
+      --radius: 16px;
+      --radius-small: 12px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, var(--background) 0%, var(--surface-variant) 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
+    .container:hover {
+      box-shadow: var(--shadow-hover);
+    }
+
+    .header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      color: white;
+      padding: 40px 30px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      animation: shimmer 3s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(180deg); }
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      font-weight: 300;
+      position: relative;
+      z-index: 1;
+    }
+
+    .content {
+      padding: 40px 30px;
+    }
+
+    .input-section {
+      margin-bottom: 30px;
+    }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .input-group label {
+      display: block;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-wrapper .material-icons {
+      position: absolute;
+      left: 16px;
+      color: var(--text-muted);
+      font-size: 20px;
+      z-index: 1;
+    }
+
+    #urlInput {
+      width: 100%;
+      padding: 16px 16px 16px 52px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-small);
+      font-size: 1rem;
+      font-family: inherit;
+      background: var(--surface);
+      color: var(--text-primary);
+      transition: var(--transition);
+      outline: none;
+    }
+
+    #urlInput:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(139, 69, 19, 0.1);
+    }
+
+    #urlInput::placeholder {
+      color: var(--text-muted);
+    }
+
+    .options {
+      display: flex;
+      align-items: center;
+      margin-bottom: 24px;
+      padding: 16px;
+      background: var(--surface-variant);
+      border-radius: var(--radius-small);
+      border: 1px solid var(--border);
+    }
+
+    .checkbox-wrapper {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .checkbox-wrapper input[type="checkbox"] {
+      margin-right: 12px;
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .checkbox-wrapper label {
+      font-weight: 400;
+      color: var(--text-secondary);
+      cursor: pointer;
+      margin: 0;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    .btn {
+      padding: 14px 28px;
+      border: none;
+      border-radius: var(--radius-small);
+      font-size: 1rem;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-transform: none;
+      min-width: 120px;
+      justify-content: center;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(139, 69, 19, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(139, 69, 19, 0.4);
+    }
+
+    .btn-secondary {
+      background: var(--surface-variant);
+      color: var(--text-secondary);
+      border: 2px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--accent);
+      border-color: var(--secondary);
+      transform: translateY(-1px);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .output-section {
+      margin-top: 30px;
+    }
+
+    .section-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .result-container {
+      background: var(--surface-variant);
+      border-radius: var(--radius-small);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .result-header {
+      padding: 16px 20px;
+      background: var(--accent);
+      border-bottom: 1px solid var(--border);
+      font-weight: 500;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .result-content {
+      padding: 0;
+    }
+
+    .result-item {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      transition: var(--transition);
+    }
+
+    .result-item:last-child {
+      border-bottom: none;
+    }
+
+    .result-item:hover {
+      background: rgba(139, 69, 19, 0.02);
+    }
+
+    .result-icon {
+      color: var(--primary);
+      font-size: 24px;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+
+    .result-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .result-label {
+      font-weight: 500;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .result-value {
+      color: var(--text-primary);
+      font-size: 1rem;
+      word-break: break-all;
+      line-height: 1.5;
+    }
+
+    .result-value.empty {
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+    }
+
+    .loading .material-icons {
+      font-size: 48px;
+      margin-bottom: 16px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .error {
+      background: #fee;
+      color: #c53030;
+      padding: 20px;
+      border-radius: var(--radius-small);
+      border-left: 4px solid #c53030;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .favicon {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .favicon-placeholder {
+      width: 24px;
+      height: 24px;
+      background: var(--border);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .favicon-placeholder .material-icons {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+
+      .header {
+        padding: 30px 20px;
+      }
+
+      .header h1 {
+        font-size: 2rem;
+      }
+
+      .content {
+        padding: 30px 20px;
+      }
+
+      .buttons {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .result-item {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .result-icon {
+        align-self: flex-start;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .header h1 {
+        font-size: 1.5rem;
+      }
+
+      .header p {
+        font-size: 1rem;
+      }
+
+      .content {
+        padding: 20px 15px;
+      }
+
+      #urlInput {
+        padding: 14px 14px 14px 48px;
+      }
+
+      .result-item {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>Webpage Extractor</h1>
+      <p>Extract essential information from any webpage instantly</p>
+    </header>
+
+    <div class="content">
+      <section class="input-section">
+        <div class="input-group">
+          <label for="urlInput">Website URL</label>
+          <div class="input-wrapper">
+            <span class="material-icons">language</span>
+            <input id="urlInput" type="url" placeholder="https://example.com" value="https://utkarsh.info" />
+          </div>
+        </div>
+
+        <div class="options">
+          <div class="checkbox-wrapper">
+            <input id="useProxy" type="checkbox" />
+            <label for="useProxy">Use local proxy (recommended for production)</label>
+          </div>
+        </div>
+
+        <div class="buttons">
+          <button id="fetchBtn" class="btn btn-primary">
+            <span class="material-icons">search</span>
+            Extract Data
+          </button>
+          <button id="clearBtn" class="btn btn-secondary">
+            <span class="material-icons">clear</span>
+            Clear Results
+          </button>
+        </div>
+      </section>
+
+      <section class="output-section">
+        <h2 class="section-title">
+          <span class="material-icons">info</span>
+          Extracted Information
+        </h2>
+        <div class="result-container">
+          <div class="result-header">
+            <span class="material-icons">data_object</span>
+            Webpage Details
+          </div>
+          <div id="resultArea" class="result-content">
+            <div class="loading">
+              <div class="material-icons">hourglass_empty</div>
+              <p>Ready to extract webpage data</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    // script.js
+    const fetchBtn = document.getElementById('fetchBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const urlInput = document.getElementById('urlInput');
+    const resultArea = document.getElementById('resultArea');
+    const useProxy = document.getElementById('useProxy');
+
+    function showLoading() {
+      resultArea.innerHTML = `
+        <div class="loading">
+          <div class="material-icons">sync</div>
+          <p>Extracting webpage data...</p>
+        </div>
+      `;
+    }
+
+    function showError(message) {
+      resultArea.innerHTML = `
+        <div class="error">
+          <span class="material-icons">error</span>
+          <div>
+            <strong>Error:</strong> ${message}
+          </div>
+        </div>
+      `;
+    }
+
+    function showResults(data) {
+      const favicon = data.favicon ? 
+        `<img src="${data.favicon}" alt="Favicon" class="favicon" onerror="this.style.display='none'">` :
+        `<div class="favicon-placeholder"><span class="material-icons">web</span></div>`;
+
+      resultArea.innerHTML = `
+        <div class="result-item">
+          <span class="material-icons result-icon">title</span>
+          <div class="result-info">
+            <div class="result-label">Page Title</div>
+            <div class="result-value ${!data.page_title ? 'empty' : ''}">${data.page_title || 'No title found'}</div>
+          </div>
+        </div>
+        <div class="result-item">
+          <span class="material-icons result-icon">description</span>
+          <div class="result-info">
+            <div class="result-label">Description</div>
+            <div class="result-value ${!data.page_description ? 'empty' : ''}">${data.page_description || 'No description found'}</div>
+          </div>
+        </div>
+        <div class="result-item">
+          <span class="material-icons result-icon">link</span>
+          <div class="result-info">
+            <div class="result-label">URL</div>
+            <div class="result-value">${data.url || 'N/A'}</div>
+          </div>
+        </div>
+        <div class="result-item">
+          <span class="material-icons result-icon">public</span>
+          <div class="result-info">
+            <div class="result-label">Domain</div>
+            <div class="result-value">${data.domain || 'N/A'}</div>
+          </div>
+        </div>
+        <div class="result-item">
+          <span class="material-icons result-icon">image</span>
+          <div class="result-info">
+            <div class="result-label">Favicon</div>
+            <div class="result-value" style="display: flex; align-items: center; gap: 12px;">
+              ${favicon}
+              <span class="${!data.favicon ? 'empty' : ''}">${data.favicon || 'No favicon found'}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    fetchBtn.addEventListener('click', async () => {
+      const targetUrl = urlInput.value.trim();
+      if (!targetUrl) {
+        showError('Please enter a valid URL');
+        return;
+      }
+
+      // Disable button during fetch
+      fetchBtn.disabled = true;
+      fetchBtn.innerHTML = '<span class="material-icons">hourglass_empty</span> Extracting...';
+      
+      showLoading();
+
+      try {
+        let response;
+        
+        if (useProxy.checked) {
+          response = await fetch(`/proxy?url=${encodeURIComponent(targetUrl)}`);
+          if (!response.ok) throw new Error(`Proxy error: ${response.status} ${response.statusText}`);
+        } else {
+          // Direct API call (for testing only)
+          const API_KEY = "tmzQqPk8v0EuGfP1d7pWBw==sTExHT0IOuEvNul1";
+          const apiUrl = `https://api.api-ninjas.com/v1/webpage?url=${encodeURIComponent(targetUrl)}`;
+
+          response = await fetch(apiUrl, {
+            method: 'GET',
+            headers: {
+              'X-Api-Key': API_KEY,
+              'Accept': 'application/json'
+            }
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`API Error (${response.status}): ${errorText}`);
+          }
+        }
+
+        const data = await response.json();
+        showResults(data);
+
+      } catch (err) {
+        console.error(err);
+        showError(err.message);
+      } finally {
+        // Re-enable button
+        fetchBtn.disabled = false;
+        fetchBtn.innerHTML = '<span class="material-icons">search</span> Extract Data';
+      }
+    });
+
+    clearBtn.addEventListener('click', () => {
+      resultArea.innerHTML = `
+        <div class="loading">
+          <div class="material-icons">hourglass_empty</div>
+          <p>Ready to extract webpage data</p>
+        </div>
+      `;
+    });
+
+    // Allow Enter key to trigger fetch
+    urlInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        fetchBtn.click();
+      }
+    });
+  </script>
+</body>
+</html>
