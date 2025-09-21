@@ -1,63 +1,139 @@
-// script.js
-// FRONTEND: for quick testing only.
-// Recommended: Use the Node proxy (server.js) below to keep your API key secret.
-
 const fetchBtn = document.getElementById('fetchBtn');
-const clearBtn = document.getElementById('clearBtn');
-const urlInput = document.getElementById('urlInput');
-const jsonOutput = document.getElementById('jsonOutput');
-const useProxy = document.getElementById('useProxy');
+    const clearBtn = document.getElementById('clearBtn');
+    const urlInput = document.getElementById('urlInput');
+    const resultArea = document.getElementById('resultArea');
+    const useProxy = document.getElementById('useProxy');
 
-fetchBtn.addEventListener('click', async () => {
-  const targetUrl = urlInput.value.trim();
-  if (!targetUrl) {
-    alert('Enter a valid URL');
-    return;
-  }
-
-  jsonOutput.textContent = 'Fetching...';
-
-  try {
-    // If you check "Use local proxy", the request will be sent to /proxy (see server.js example).
-    if (useProxy.checked) {
-      const resp = await fetch(`/proxy?url=${encodeURIComponent(targetUrl)}`);
-      if (!resp.ok) throw new Error(`Proxy error: ${resp.status} ${resp.statusText}`);
-      const data = await resp.json();
-      jsonOutput.textContent = JSON.stringify(data, null, 2);
-      return;
+    function showLoading() {
+      resultArea.innerHTML = `
+        <div class="loading">
+          <div class="material-icons">sync</div>
+          <p>Extracting webpage data...</p>
+        </div>
+      `;
     }
 
-    // === CLIENT-SIDE DIRECT CALL (NOT RECOMMENDED FOR PRODUCTION) ===
-    // Put your API key here ONLY for local testing. DO NOT ship this to production.
-    //tmzQqPk8v0EuGfP1d7pWBw==sTExHT0IOuEvNul1
-    const API_KEY = "tmzQqPk8v0EuGfP1d7pWBw==sTExHT0IOuEvNul1"
+    function showError(message) {
+      resultArea.innerHTML = `
+        <div class="error">
+          <span class="material-icons">error</span>
+          <div>
+            <strong>Error:</strong> ${message}
+          </div>
+        </div>
+      `;
+    }
 
+    function showResults(data) {
+      const favicon = data.favicon ? 
+        `<img src="${data.favicon}" alt="Favicon" class="favicon" onerror="this.style.display='none'">` :
+        `<div class="favicon-placeholder"><span class="material-icons">web</span></div>`;
 
-    const apiUrl = `https://api.api-ninjas.com/v1/webpage?url=${encodeURIComponent(targetUrl)}`;
+      resultArea.innerHTML = `
+        <div class="result-item">
+          <span class="material-icons result-icon">title</span>
+          <div class="result-info">
+            <div class="result-label">Page Title</div>
+            <div class="result-value ${!data.page_title ? 'empty' : ''}">${data.page_title || 'No title found'}</div>
+          </div>
+        </div>
+        <div class="result-item">
+          <span class="material-icons result-icon">description</span>
+          <div class="result-info">
+            <div class="result-label">Description</div>
+            <div class="result-value ${!data.page_description ? 'empty' : ''}">${data.page_description || 'No description found'}</div>
+          </div>
+        </div>
+        <div class="result-item">
+          <span class="material-icons result-icon">link</span>
+          <div class="result-info">
+            <div class="result-label">URL</div>
+            <div class="result-value">${data.url || 'N/A'}</div>
+          </div>
+        </div>
+        <div class="result-item">
+          <span class="material-icons result-icon">public</span>
+          <div class="result-info">
+            <div class="result-label">Domain</div>
+            <div class="result-value">${data.domain || 'N/A'}</div>
+          </div>
+        </div>
+        <div class="result-item">
+          <span class="material-icons result-icon">image</span>
+          <div class="result-info">
+            <div class="result-label">Favicon</div>
+            <div class="result-value" style="display: flex; align-items: center; gap: 12px;">
+              ${favicon}
+              <span class="${!data.favicon ? 'empty' : ''}">${data.favicon || 'No favicon found'}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
 
-    const response = await fetch(apiUrl, {
-      method: 'GET',
-      headers: {
-        'X-Api-Key': API_KEY,
-        'Accept': 'application/json'
+    fetchBtn.addEventListener('click', async () => {
+      const targetUrl = urlInput.value.trim();
+      if (!targetUrl) {
+        showError('Please enter a valid URL');
+        return;
+      }
+
+      // Disable button during fetch
+      fetchBtn.disabled = true;
+      fetchBtn.innerHTML = '<span class="material-icons">hourglass_empty</span> Extracting...';
+      
+      showLoading();
+
+      try {
+        let response;
+        
+        if (useProxy.checked) {
+          response = await fetch(`/proxy?url=${encodeURIComponent(targetUrl)}`);
+          if (!response.ok) throw new Error(`Proxy error: ${response.status} ${response.statusText}`);
+        } else {
+          // Direct API call (for testing only)
+          const API_KEY = "tmzQqPk8v0EuGfP1d7pWBw==sTExHT0IOuEvNul1";
+          const apiUrl = `https://api.api-ninjas.com/v1/webpage?url=${encodeURIComponent(targetUrl)}`;
+
+          response = await fetch(apiUrl, {
+            method: 'GET',
+            headers: {
+              'X-Api-Key': API_KEY,
+              'Accept': 'application/json'
+            }
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`API Error (${response.status}): ${errorText}`);
+          }
+        }
+
+        const data = await response.json();
+        showResults(data);
+
+      } catch (err) {
+        console.error(err);
+        showError(err.message);
+      } finally {
+        // Re-enable button
+        fetchBtn.disabled = false;
+        fetchBtn.innerHTML = '<span class="material-icons">search</span> Extract Data';
       }
     });
 
-    if (!response.ok) {
-      const txt = await response.text();
-      throw new Error(`HTTP ${response.status}: ${txt}`);
-    }
+    clearBtn.addEventListener('click', () => {
+      resultArea.innerHTML = `
+        <div class="loading">
+          <div class="material-icons">hourglass_empty</div>
+          <p>Ready to extract webpage data</p>
+        </div>
+      `;
+    });
 
-    const data = await response.json();
-    jsonOutput.textContent = JSON.stringify(data, null, 2);
-    // console.log(data);
-
-  } catch (err) {
-    jsonOutput.textContent = `Error: ${err.message}`;
-    console.error(err);
-  }
-});
-
-clearBtn.addEventListener('click', () => {
-  jsonOutput.textContent = '{}';
-});
+    // Allow Enter key to trigger fetch
+    urlInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        fetchBtn.click();
+      }
+    });
