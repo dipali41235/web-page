@@ -2,7 +2,7 @@ const fetchBtn = document.getElementById('fetchBtn');
     const clearBtn = document.getElementById('clearBtn');
     const urlInput = document.getElementById('urlInput');
     const resultArea = document.getElementById('resultArea');
-    // const useProxy = document.getElementById('useProxy');
+    // const useProxy = document.getElementById('useProxy')
 
     function showLoading() {
       resultArea.innerHTML = `
