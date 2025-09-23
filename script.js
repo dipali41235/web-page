@@ -127,7 +127,7 @@ const fetchBtn = document.getElementById('fetchBtn');
       `;
     });
 
-    // Allow Ent
+    // Allow En
     urlInput.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
         fetchBtn.click();
