@@ -127,7 +127,7 @@ const fetchBtn = document.getElementById('fetchBtn');
       `;
     });
 
-    // Allow Enter key t
+    // Allow Enter key 
     urlInput.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
         fetchBtn.click();
