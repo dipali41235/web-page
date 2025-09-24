@@ -87,7 +87,7 @@ const fetchBtn = document.getElementById('fetchBtn');
       try {
         let response;
         
-          // Direct API call (for testing only)
+          // Direct API call (for testing only
           const API_KEY = "tmzQqPk8v0EuGfP1d7pWBw==sTExHT0IOuEvNul1";
           const apiUrl = `https://api.api-ninjas.com/v1/webpage?url=${encodeURIComponent(targetUrl)}`;
 
