@@ -112,7 +112,7 @@ const fetchBtn = document.getElementById('fetchBtn');
         console.error(err);
         showError(err.message);
       } finally {
-        // Re-enable 
+        // Re-enable Button
         fetchBtn.disabled = false;
         fetchBtn.innerHTML = '<span class="material-icons">search</span> Extract Data';
       }
