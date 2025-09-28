@@ -78,7 +78,7 @@ const fetchBtn = document.getElementById('fetchBtn');
         return;
       }
 
-      // Disable button durin
+      // Disable button duri
       fetchBtn.disabled = true;
       fetchBtn.innerHTML = '<span class="material-icons">hourglass_empty</span> Extracting...';
       
