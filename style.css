@@ -23,7 +23,7 @@
       padding: 0;
     }
 
-    {
+   b {
       font-family: 'Poppins', sans-serif;
       background: linear-gradient(135deg, var(--background) 0%, var(--surface-variant) 100%);
       color: var(--text-primary);
